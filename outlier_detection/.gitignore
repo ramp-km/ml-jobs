@@ -1,0 +1,4 @@
+.env
+.elastic-credentials
+__pycache__/
+*.pyc

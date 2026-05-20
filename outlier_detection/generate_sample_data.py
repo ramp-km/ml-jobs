@@ -10,7 +10,46 @@ import urllib.request
 import urllib.error
 import os
 import sys
+from pathlib import Path
 from datetime import date, timedelta
+
+
+def _parse_kv_file(path):
+    """Yield (key, value) pairs from a KEY=VALUE file, skipping comments and blanks."""
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                yield key.strip(), value.strip().strip("'\"")
+    except FileNotFoundError:
+        pass
+
+
+def load_config():
+    """
+    Load credentials into os.environ from the repo root, walking up from this script.
+
+    Resolution order (first wins for each key):
+      1. Existing shell environment variables
+      2. .env  — general config and Cloud API key
+      3. .elastic-credentials — Elasticsearch endpoint and API key
+    """
+    here = Path(__file__).resolve().parent
+    root = next(
+        (d for d in [here, *here.parents] if (d / ".env").exists() or (d / ".elastic-credentials").exists()),
+        here,
+    )
+    for key, value in _parse_kv_file(root / ".env"):
+        os.environ.setdefault(key, value)
+    # .elastic-credentials sections contain plain KEY=VALUE lines between headers
+    for key, value in _parse_kv_file(root / ".elastic-credentials"):
+        os.environ.setdefault(key, value)
+
+
+load_config()
 
 # Use system CA bundle (handles corporate proxy certs)
 SSL_CONTEXT = ssl.create_default_context(

@@ -16,34 +16,47 @@ A minimal example of Elasticsearch's [Data Frame Analytics](https://www.elastic.
 
 ## Setup
 
-### 1. Create a credentials file
+### 1. Create a `.env` file
 
-Create `.elastic-credentials` in this directory (it is gitignored):
+Create `.env` in the **repo root** (`ml-jobs/`). The scripts walk up from their own location and load the first `.env` they find, so a single file at the root covers all jobs in the repo.
 
-```
-# Project: <your-project-name> | id=<your-project-id>
+```bash
+# ml-jobs/.env
 ELASTICSEARCH_URL=https://<your-endpoint>.es.<region>.gcp.elastic.cloud
-KIBANA_URL=https://<your-endpoint>.kb.<region>.gcp.elastic.cloud
 ELASTICSEARCH_API_KEY=<your-api-key>
+
+# Optional — only needed if behind a corporate proxy with a custom CA bundle
+# SSL_CERT_FILE=/etc/ssl/cert.pem          # macOS
+# SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt  # Linux
 ```
 
-The API key needs the following cluster/index privileges:
+Both `.env` and `.elastic-credentials` are gitignored at the repo root.
+
+### 2. Required API key privileges
 
 | Privilege | Scope |
 |---|---|
 | `manage_ml` | cluster |
 | `create_index`, `index`, `read` | `employee-metrics`, `employee-outlier-results` |
 
-### 2. Export environment variables
+### 3. (Optional) Export variables directly
+
+Shell exports take precedence over both `.env` and `.elastic-credentials`:
 
 ```bash
 export ELASTICSEARCH_URL=https://<your-endpoint>.es.<region>.gcp.elastic.cloud
 export ELASTICSEARCH_API_KEY=<your-api-key>
-
-# If you're behind a corporate proxy with a custom CA bundle:
-export SSL_CERT_FILE=/etc/ssl/cert.pem   # macOS system bundle
-# export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt  # Linux
 ```
+
+### Config resolution order
+
+The scripts walk up from their own location to find the repo root, then load credentials in this order (first value for each key wins):
+
+| Source | Purpose |
+|---|---|
+| Shell environment | Highest precedence — overrides everything |
+| `ml-jobs/.env` | General config, Cloud API key (`EC_API_KEY`) |
+| `ml-jobs/.elastic-credentials` | Elasticsearch endpoint and API key |
 
 ## Usage
 

@@ -189,3 +189,279 @@ curl -s -X DELETE -H "Authorization: ApiKey $ELASTICSEARCH_API_KEY" \
 | `setup_outlier_job.py` | Creates and starts the `employee-outlier-detection` analytics job |
 | `.elastic-credentials` | Local credentials file (gitignored) |
 | `.env` | Local environment overrides (gitignored) |
+
+## Real world outlier detection use cases
+
+# 1. Unusual user behavior on a network
+
+Goal: Find users whose behavior differs sharply from peer users.
+
+Entity: user_id
+
+Possible features:
+
+    number of logins per day
+    number of failed logins
+    number of distinct source IPs
+    number of distinct devices used
+    average session duration
+    bytes uploaded
+    bytes downloaded
+    number of privileged actions
+    number of off-hours accesses
+    number of countries or regions accessed from
+
+Why it works:
+
+Most users cluster into normal behavior patterns. A user with unusually high failed logins, many source IPs, and abnormal off-hours activity may stand out as an outlier.
+
+# 2. Malware or compromised host detection
+
+Goal: Identify hosts behaving differently from the rest of the fleet.
+
+Entity: host.name or host.id
+
+Possible features:
+
+    process count
+    number of unique processes launched
+    number of unsigned binaries executed
+    outbound connection count
+    number of distinct destination IPs
+    DNS request count
+    bytes sent externally
+    number of failed process executions
+    number of security alerts
+    CPU usage average
+    memory usage average
+
+Why it works:
+
+A compromised machine may show unusual combinations like high outbound connections, many distinct destinations, and abnormal process activity.
+
+# 3. Fraudulent payment card or account behavior
+
+Goal: Detect accounts or cards whose transaction profile is unusual.
+
+Entity: account_id or card_id
+
+Possible features:
+
+    transaction count per day
+    average transaction amount
+    max transaction amount
+    number of merchants used
+    number of countries used
+    percentage of card-not-present transactions
+    number of declined transactions
+    number of transactions at unusual hours
+    average time between transactions
+
+Why it works:
+
+Fraud often appears as a profile that differs from the broader population, such as many countries in a short period or unusually high transaction velocity.
+
+# 4. E-commerce seller or buyer anomaly detection
+
+Goal: Find sellers or buyers with abnormal marketplace behavior.
+
+Entity: seller_id or buyer_id
+
+Possible features:
+
+    order count
+    refund rate
+    cancellation rate
+    average basket value
+    number of unique shipping addresses
+    number of payment methods used
+    number of customer complaints
+    average fulfillment time
+    return rate
+
+Why it works:
+
+A seller with unusually high cancellations and complaints, or a buyer with many shipping addresses and payment methods, may be worth investigating.
+
+# 5. IoT device fleet monitoring
+
+Goal: Detect devices whose telemetry profile is unusual.
+
+Entity: device_id
+
+Possible features:
+
+    average temperature
+    max temperature
+    vibration average
+    power consumption average
+    reboot count
+    error count
+    packet loss rate
+    message frequency
+    battery level average
+    firmware version encoded as categorical input if appropriate upstream
+
+Why it works:
+
+A failing or misconfigured device may differ from similar devices in temperature, reboot frequency, or communication behavior.
+
+# 6. Server or VM fleet capacity outliers
+
+Goal: Find infrastructure nodes that are behaving differently from peers.
+
+Entity: host.name, instance_id, or vm_id
+
+Possible features:
+
+    CPU utilization average
+    memory utilization average
+    disk utilization average
+    disk I/O rate
+    network throughput
+    process count
+    load average
+    restart count
+    error log count
+    open file descriptor count
+
+Why it works:
+
+One VM with much higher disk I/O and memory pressure than similar nodes may indicate a leak, noisy neighbor issue, or mis-sizing.
+
+# 7. Customer support case outliers
+
+Goal: Identify tickets or customers with unusual support patterns.
+
+Entity: case_id or customer_id
+
+Possible features:
+
+    number of reopen events
+    time to first response
+    total resolution time
+    number of handoffs
+    severity
+    number of comments
+    number of attached logs/files
+    escalation count
+    product area encoded numerically/categorically upstream
+
+Why it works:
+
+Cases that require many handoffs and unusually long resolution times may indicate process issues or hidden product problems.
+
+# 8. Manufacturing quality control
+
+Goal: Detect parts, batches, or machines with unusual production characteristics.
+
+Entity: batch_id, machine_id, or part_id
+
+Possible features:
+
+    defect count
+    cycle time
+    temperature average during production
+    pressure average
+    vibration average
+    scrap rate
+    rework count
+    energy consumption per unit
+    downtime minutes
+
+Why it works:
+
+A machine or batch that differs from the rest may indicate calibration drift, wear, or process instability.
+
+# 9. Healthcare or operations workflow outliers
+
+Goal: Find patients, visits, or facilities with unusual operational patterns.
+
+Entity: visit_id, patient_id, or facility_id
+
+Possible features:
+
+    length of stay
+    number of procedures
+    number of medications
+    readmission count
+    wait time
+    transfer count
+    lab test count
+    cost of visit
+
+Why it works:
+
+Outlier detection can highlight unusually complex or costly cases for review, though domain and privacy controls are critical.
+
+# 10. Web service/API client outliers
+
+Goal: Detect clients or services whose usage profile is unusual.
+
+Entity: client_id, service.name, or api_key_id
+
+Possible features:
+
+    request count
+    error rate
+    average latency
+    max latency
+    bytes sent
+    bytes received
+    number of endpoints accessed
+    authentication failure count
+    request rate during off-hours
+
+Why it works:
+
+A client with unusual request volume, endpoint spread, and error rate may indicate abuse, integration bugs, or credential misuse.
+
+## What makes a good feature set for outlier detection
+
+In practice, the best features are usually:
+
+    numeric or boolean
+    entity-level summaries
+    built over a meaningful window, such as:
+    last 24 hours
+    last 7 days
+    last 30 days
+
+Examples:
+
+    counts
+    averages
+    maxima
+    ratios
+    distinct counts
+    boolean flags
+
+This is important because Elastic outlier detection works on a tabular data frame and requires analyzed fields to be numeric or boolean. Documents with missing/null/array values in included analyzed fields may be ignored for the analysis.
+
+## Common pattern: build an entity-centric index first
+
+A strong real-world workflow is:
+
+    Raw events arrive continuously
+    Use a transform to build one row per entity
+    Compute summary features for that entity
+    Run outlier detection on that derived index
+
+For example:
+
+    one row per user over the last 7 days
+    one row per host over the last 24 hours
+    one row per card over the last 30 days
+
+That usually works much better than feeding raw event-level documents directly.
+
+## When not to use outlier detection
+
+Outlier detection is less suitable when:
+
+    your problem is fundamentally time-series continuous monitoring
+    you need real-time ongoing detection
+    your data is mostly unstructured text
+    you don’t have a meaningful entity-centric table
+
+In those cases, anomaly detection may be a better fit.

@@ -182,3 +182,151 @@ curl -s -X DELETE -H "Authorization: ApiKey $ELASTICSEARCH_API_KEY" \
 |---|---|
 | `generate_sample_data.py` | Creates the `it-incidents` index and bulk-loads 600 synthetic records |
 | `setup_regression_job.py` | Creates and starts the `incident-resolution-regression` analytics job |
+
+
+## Use Cases for applying inference at ingest to predict numeric values using regression models
+
+# Real-world examples
+
+# 1. Predict ticket resolution time at ingest
+
+A support case arrives with fields like:
+
+- severity
+- product area
+- customer tier
+- region
+- issue category
+
+A regression model predicts:
+
+- expected resolution time in hours
+
+Why do inference at ingest?
+
+- route urgent cases faster
+- alert if predicted resolution time exceeds SLA
+- prioritize queues immediately
+
+# 2. Predict shipment delay duration
+
+Each shipment event is indexed with:
+
+- origin
+- destination
+- carrier
+- weather region
+- day of week
+- package type
+
+A regression model predicts:
+
+- expected delay in minutes/hours
+
+Why at ingest?
+
+- enrich each shipment record with predicted delay
+- power dashboards and downstream automation
+- trigger alerts for high-risk shipments
+
+# 3. Predict cloud resource exhaustion lead time
+
+Incoming infrastructure records contain:
+
+- current utilization
+- growth rate
+- workload type
+- region
+- instance size
+-  historical trend features
+
+A regression model predicts:
+
+- hours/days until 90% or 100% capacity
+
+Why at ingest?
+
+- every new metric summary doc gets a “time_to_capacity” estimate
+- alerting becomes simple
+- capacity planning dashboards can use the stored prediction directly
+
+# 4. Predict web request response time
+
+Elastic’s docs explicitly use examples like predicting:
+
+- response time of a web request
+- approximate amount of data exchanged with a client
+
+For an incoming request summary document, a regression model could predict:
+
+- expected latency in ms
+- expected payload size
+
+Why at ingest?
+
+- compare actual vs predicted later
+- flag requests likely to violate SLOs
+- enrich observability data for analysis
+
+# 5. Predict transaction amount or claim amount
+
+For finance/insurance-style events, based on:
+
+- customer profile
+- product type
+- geography
+- prior behavior
+- event attributes
+
+A regression model predicts:
+
+- expected claim amount
+- expected transaction value
+- expected loss amount
+
+Why at ingest?
+
+- immediate risk scoring
+- downstream business rules
+- anomaly comparison between predicted and actual values
+
+# 6. Predict energy consumption or load
+
+For smart building / industrial telemetry, incoming records may include:
+
+- site
+- equipment type
+- temperature
+- occupancy
+- hour/day seasonality features
+
+A regression model predicts:
+
+- expected power consumption
+- expected load
+
+Why at ingest?
+
+- compare actual vs expected in dashboards
+- detect inefficiency
+- trigger operational workflows
+
+# A good fit vs a bad fit
+
+# Good fit
+
+Use regression inference at ingest when:
+
+- prediction is needed for every incoming document
+- the prediction should be stored and reused
+- latency at search time should stay low
+- downstream alerts/filters depend on the predicted numeric field
+
+# Less ideal fit
+
+It may be less suitable when:
+
+- features needed for prediction are incomplete at ingest time
+- the model changes very frequently
+- you only need predictions occasionally at query time
+- inference cost at ingest would be too high for your throughput

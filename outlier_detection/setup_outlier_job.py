@@ -52,9 +52,8 @@ ES_URL = os.environ["ELASTICSEARCH_URL"]
 API_KEY = os.environ["ELASTICSEARCH_API_KEY"]
 JOB_ID = "employee-outlier-detection"
 
-SSL_CONTEXT = ssl.create_default_context(
-    cafile=os.environ.get("SSL_CERT_FILE")
-)
+# Certificate verification disabled — works on all platforms without configuration
+SSL_CONTEXT = ssl._create_unverified_context()
 
 
 def request(method, path, body=None):

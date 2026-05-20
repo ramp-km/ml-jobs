@@ -11,8 +11,9 @@ A minimal example of Elasticsearch's [Data Frame Analytics](https://www.elastic.
 ## Prerequisites
 
 - Python 3.8+
-- An Elastic Cloud Serverless project (Observability or Elasticsearch tier) with an API key that has ML privileges
+- An Elastic Cloud Serverless project (Observability or Elasticsearch tier) **or** a self-managed Elasticsearch 7.3+ cluster with a Platinum/Enterprise licence
 - No third-party Python packages required — only the standard library
+- **SSL**: Certificate verification is disabled by default. All platforms and proxy setups work without any SSL configuration.
 
 ## Setup
 
@@ -24,10 +25,6 @@ Create `.env` in the **repo root** (`ml-jobs/`). The scripts walk up from their 
 # ml-jobs/.env
 ELASTICSEARCH_URL=https://<your-endpoint>.es.<region>.gcp.elastic.cloud
 ELASTICSEARCH_API_KEY=<your-api-key>
-
-# Optional — only needed if behind a corporate proxy with a custom CA bundle
-# SSL_CERT_FILE=/etc/ssl/cert.pem          # macOS
-# SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt  # Linux
 ```
 
 Both `.env` and `.elastic-credentials` are gitignored at the repo root.

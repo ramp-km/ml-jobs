@@ -51,10 +51,8 @@ def load_config():
 
 load_config()
 
-# Use system CA bundle (handles corporate proxy certs)
-SSL_CONTEXT = ssl.create_default_context(
-    cafile=os.environ.get("SSL_CERT_FILE")
-)
+# Certificate verification disabled — works on all platforms without configuration
+SSL_CONTEXT = ssl._create_unverified_context()
 
 ES_URL = os.environ["ELASTICSEARCH_URL"]
 API_KEY = os.environ["ELASTICSEARCH_API_KEY"]

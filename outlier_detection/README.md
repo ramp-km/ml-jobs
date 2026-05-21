@@ -190,9 +190,9 @@ curl -s -X DELETE -H "Authorization: ApiKey $ELASTICSEARCH_API_KEY" \
 | `.elastic-credentials` | Local credentials file (gitignored) |
 | `.env` | Local environment overrides (gitignored) |
 
-## Real world outlier detection use cases
+# Real world outlier detection use cases
 
-# 1. Unusual user behavior on a network
+## 1. Unusual user behavior on a network
 
 Goal: Find users whose behavior differs sharply from peer users.
 
@@ -215,7 +215,7 @@ Why it works:
 
 Most users cluster into normal behavior patterns. A user with unusually high failed logins, many source IPs, and abnormal off-hours activity may stand out as an outlier.
 
-# 2. Malware or compromised host detection
+## 2. Malware or compromised host detection
 
 Goal: Identify hosts behaving differently from the rest of the fleet.
 
@@ -239,7 +239,7 @@ Why it works:
 
 A compromised machine may show unusual combinations like high outbound connections, many distinct destinations, and abnormal process activity.
 
-# 3. Fraudulent payment card or account behavior
+## 3. Fraudulent payment card or account behavior
 
 Goal: Detect accounts or cards whose transaction profile is unusual.
 
@@ -261,7 +261,7 @@ Why it works:
 
 Fraud often appears as a profile that differs from the broader population, such as many countries in a short period or unusually high transaction velocity.
 
-# 4. E-commerce seller or buyer anomaly detection
+## 4. E-commerce seller or buyer anomaly detection
 
 Goal: Find sellers or buyers with abnormal marketplace behavior.
 
@@ -283,7 +283,7 @@ Why it works:
 
 A seller with unusually high cancellations and complaints, or a buyer with many shipping addresses and payment methods, may be worth investigating.
 
-# 5. IoT device fleet monitoring
+## 5. IoT device fleet monitoring
 
 Goal: Detect devices whose telemetry profile is unusual.
 
@@ -306,7 +306,7 @@ Why it works:
 
 A failing or misconfigured device may differ from similar devices in temperature, reboot frequency, or communication behavior.
 
-# 6. Server or VM fleet capacity outliers
+## 6. Server or VM fleet capacity outliers
 
 Goal: Find infrastructure nodes that are behaving differently from peers.
 
@@ -329,7 +329,7 @@ Why it works:
 
 One VM with much higher disk I/O and memory pressure than similar nodes may indicate a leak, noisy neighbor issue, or mis-sizing.
 
-# 7. Customer support case outliers
+## 7. Customer support case outliers
 
 Goal: Identify tickets or customers with unusual support patterns.
 
@@ -351,7 +351,7 @@ Why it works:
 
 Cases that require many handoffs and unusually long resolution times may indicate process issues or hidden product problems.
 
-# 8. Manufacturing quality control
+## 8. Manufacturing quality control
 
 Goal: Detect parts, batches, or machines with unusual production characteristics.
 
@@ -373,7 +373,7 @@ Why it works:
 
 A machine or batch that differs from the rest may indicate calibration drift, wear, or process instability.
 
-# 9. Healthcare or operations workflow outliers
+## 9. Healthcare or operations workflow outliers
 
 Goal: Find patients, visits, or facilities with unusual operational patterns.
 
@@ -394,7 +394,7 @@ Why it works:
 
 Outlier detection can highlight unusually complex or costly cases for review, though domain and privacy controls are critical.
 
-# 10. Web service/API client outliers
+## 10. Web service/API client outliers
 
 Goal: Detect clients or services whose usage profile is unusual.
 

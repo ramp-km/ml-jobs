@@ -387,9 +387,7 @@ curl -s -X DELETE -H "Authorization: ApiKey $ELASTICSEARCH_API_KEY" \
 
 ---
 
-## Use Cases for applying inference at ingest to predict numeric values using regression models
-
-### Real-world examples
+## Real World Use Cases for applying inference at ingest to predict numeric values using regression models
 
 ### 1. Predict ticket resolution time at ingest
 
